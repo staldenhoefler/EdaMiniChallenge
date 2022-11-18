@@ -128,8 +128,13 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
+<<<<<<< HEAD
 pathFlavio <- ""
 data <- read.csv(pathDenis)
+=======
+pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
+data <- read.csv()
+>>>>>>> 7957e11410a0b008438b3f171eff6940400468a4
 data
 ```
 
