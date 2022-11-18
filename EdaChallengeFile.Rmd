@@ -129,8 +129,8 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-data <- read.csv()
-data
+dataFrame <- read.csv()
+dataFrame
 ```
 
 
@@ -139,7 +139,8 @@ data
 Gib für die eingelesenen Daten die Anzahl Beobachtungen und Attribute aus.
 
 ```{r}
-summarise(data)
+count(dataFrame) #Anzahl
+attributes(dataFrame) #Attribute
 ```
 
 ## Aufgabe (1 Punkt): Inspiziere die Dateninhalte
@@ -147,7 +148,9 @@ summarise(data)
 Gib eine Zufallsstichprobe von 5 Beobachtungen aus (verwende als Seed die Zahl 4711) und verschafffe dir einen Überblick über die Daten.
 
 ```{r}
-
+set.seed(4711)
+sampleRows <- sample(1:nrow(dataFrame), 5)
+slice(dataFrame, sampleRows)
 ```
 
 
@@ -156,7 +159,7 @@ Gib eine Zufallsstichprobe von 5 Beobachtungen aus (verwende als Seed die Zahl 4
 Gib die Struktur des Data Frames aus und verschaffe dir einen Überblick über die Datentypen.
 
 ```{r}
-
+glimpse(dataFrame)
 ```
 
 
@@ -167,9 +170,10 @@ Bestimme wieviele doppelte Beobachtungen im Data Frame auftauchen.
 Hinweis: Aufgrund fehlender Hintergrundinformationen werden für die nächsten Schritte zunächst keine Beobachtungen entfernt, auch wenn im Datensatz viel redundante Informationen vorhanden sind!
 
 ```{r}
-
+duplicateList <- dataFrame[duplicated(dataFrame), ]
+newList <- duplicateList %>% group_by_all() %>% summarise(n = n())
+print(sum(newList$n))
 ```
-
 
 ## Aufgabe (10 Punkte): Identifiziere Gruppen doppelter Beobachtungen
 
