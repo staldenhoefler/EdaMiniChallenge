@@ -114,6 +114,7 @@ library(tidyverse)
 library(lubridate)
 library(ggmosaic)
 library(knitr)
+library(dplyr)
 ```
 
 
@@ -128,11 +129,8 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- ""
-data <- read.csv()
+data <- read.csv(pathDenis)
 data
-head(data)
-
-
 ```
 
 
@@ -141,7 +139,7 @@ head(data)
 Gib für die eingelesenen Daten die Anzahl Beobachtungen und Attribute aus.
 
 ```{r}
-
+summarise(data)
 ```
 
 ## Aufgabe (1 Punkt): Inspiziere die Dateninhalte
