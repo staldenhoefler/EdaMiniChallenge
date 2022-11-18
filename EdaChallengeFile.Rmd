@@ -322,6 +322,19 @@ Gib für die beiden oben bearbeiteten Attribute "MarketSegment" und "Distributio
 Hinweis: Verwende für deine Implementierung nur **einen** Aufruf der Funktion `summary()`.
 
 ```{r}
+cleanedList <- dataFrame
+#Marketsegment
+freqTableMarketSegment <- cleanedList %>% group_by(Marketsegment = cleanedList$MarketSegment) %>% summarise(Count = n())
+freqTableMarketSegment <- freqTableMarketSegment[order(freqTableMarketSegment$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableMarketSegment$Count)
+freqTableMarketSegment <- cbind(freqTableMarketSegment, Percentage = freqTableMarketSegment$Count/totalSegments * 100)
+
+#DistributionChannel
+freqTableDistributionChannel <- cleanedList %>% group_by(DistributionChannel = cleanedList$DistributionChannel) %>% summarise(Count = n())
+freqTableDistributionChannel <- freqTableDistributionChannel[order(freqTableDistributionChannel$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableDistributionChannel$Count)
+freqTableDistributionChannel <- cbind(freqTableDistributionChannel, Percentage = freqTableDistributionChannel$Count/totalSegments * 100)
+
 
 ```
 
@@ -333,6 +346,19 @@ Gib für die Attribute "Meal" und "IsRepeatedGuest" separat tabellarische Häufi
 Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 
 ```{r}
+#Meals
+freqTableMeal <- cleanedList %>% group_by(Meal = cleanedList$Meal) %>% summarise(Count = n())
+freqTableMeal <- freqTableMeal[order(freqTableMeal$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableMeal$Count)
+freqTableMeal <- cbind(freqTableMeal, Percentage = freqTableMeal$Count/totalSegments * 100)
+kable(freqTableMeal, digits = 2, format = "pipe")
+
+#IsRepeatedGuest
+freqTableIsRepeatedGuest <- cleanedList %>% group_by(Meal = cleanedList$IsRepeatedGuest) %>% summarise(Count = n())
+freqTableIsRepeatedGuest <- freqTableIsRepeatedGuest[order(freqTableIsRepeatedGuest$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableIsRepeatedGuest$Count)
+freqTableIsRepeatedGuest <- cbind(freqTableIsRepeatedGuest, Percentage = freqTableIsRepeatedGuest$Count/totalSegments * 100)
+kable(freqTableIsRepeatedGuest, digits = 2, format = "pipe")
 
 ```
 
@@ -341,9 +367,135 @@ Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 
 Erstelle eine summarische, univariate Statistik für alle Attribute und dokumentiere kurz allfällige Besonderheiten.
 
-```{r}
-
+```{r collapse=TRUE}
+#IsCanceled
+freqTableIsCanceled <- cleanedList %>% group_by(IsCanceled = cleanedList$IsCanceled) %>% summarise(Count = n())
+freqTableIsCanceled <- freqTableIsCanceled[order(freqTableIsCanceled$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableIsCanceled$Count)
+freqTableIsCanceled <- cbind(freqTableIsCanceled, Percentage = freqTableIsCanceled$Count/totalSegments * 100)
+kable(freqTableIsCanceled, digits = 2, format = "pipe")
 ```
+
+```{r collapse=TRUE}
+#LeadTime
+freqTableLeadTime <- cleanedList %>% group_by(LeadTime = cleanedList$LeadTime) %>% summarise(Count = n())
+freqTableLeadTime <- freqTableLeadTime[order(freqTableLeadTime$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableLeadTime$Count)
+freqTableLeadTime <- cbind(freqTableLeadTime, Percentage = freqTableLeadTime$Count/totalSegments * 100)
+kable(freqTableLeadTime, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Erstaundlich viele kurzfristige Buchungen.
+
+```{r collapse=TRUE}
+#Country
+freqTableCountry <- cleanedList %>% group_by(Country = cleanedList$Country) %>% summarise(Count = n())
+freqTableCountry <- freqTableCountry[order(freqTableCountry$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableCountry$Count)
+freqTableCountry <- cbind(freqTableCountry, Percentage = freqTableCountry$Count/totalSegments * 100)
+kable(freqTableCountry, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Viele Besucher von Portugal.
+
+
+```{r collapse=TRUE}
+#BookingChanges
+freqTableBookingChanges <- cleanedList %>% group_by(BookingChanges = cleanedList$BookingChanges) %>% summarise(Count = n())
+freqTableBookingChanges <- freqTableBookingChanges[order(freqTableBookingChanges$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableBookingChanges$Count)
+freqTableBookingChanges <- cbind(freqTableBookingChanges, Percentage = freqTableBookingChanges$Count/totalSegments * 100)
+kable(freqTableBookingChanges, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Keine auserordentliche Erkenntniss
+
+```{r collapse=TRUE}
+#DepositType
+freqTableDepositType <- cleanedList %>% group_by(DepositType = cleanedList$DepositType) %>% summarise(Count = n())
+freqTableDepositType <- freqTableDepositType[order(freqTableDepositType$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableDepositType$Count)
+freqTableDepositType <- cbind(freqTableDepositType, Percentage = freqTableDepositType$Count/totalSegments * 100)
+kable(freqTableDepositType, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Hauptsächlich kein Depot hinterlegt.
+
+```{r collapse=TRUE}
+#CustomerType
+freqTableCustomerType <- cleanedList %>% group_by(CustomerType = cleanedList$CustomerType) %>% summarise(Count = n())
+freqTableCustomerType <- freqTableCustomerType[order(freqTableCustomerType$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableCustomerType$Count)
+freqTableCustomerType <- cbind(freqTableCustomerType, Percentage = freqTableCustomerType$Count/totalSegments * 100)
+kable(freqTableCustomerType, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Keine speziellen Erkenntnisse.
+
+```{r collapse=TRUE}
+#RequiredCarParkingSpaces
+freqTableRequiredCarParkingSpaces <- cleanedList %>% group_by(RequiredCarParkingSpaces = cleanedList$RequiredCarParkingSpaces) %>% summarise(Count = n())
+freqTableRequiredCarParkingSpaces <- freqTableRequiredCarParkingSpaces[order(freqTableRequiredCarParkingSpaces$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableRequiredCarParkingSpaces$Count)
+freqTableRequiredCarParkingSpaces <- cbind(freqTableRequiredCarParkingSpaces, Percentage = freqTableRequiredCarParkingSpaces$Count/totalSegments * 100)
+kable(freqTableRequiredCarParkingSpaces, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Die Mehrheit kommt ohne Auto.
+
+
+```{r collapse=TRUE}
+#ReservationStatus
+freqTableReservationStatus <- cleanedList %>% group_by(ReservationStatus = cleanedList$ReservationStatus) %>% summarise(Count = n())
+freqTableReservationStatus <- freqTableReservationStatus[order(freqTableReservationStatus$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableReservationStatus$Count)
+freqTableReservationStatus <- cbind(freqTableReservationStatus, Percentage = freqTableReservationStatus$Count/totalSegments * 100)
+kable(freqTableReservationStatus, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Keine speziellen Erkenntnisse.
+
+```{r collapse=TRUE}
+#Company
+freqTableCompany <- cleanedList %>% group_by(Company = cleanedList$Company) %>% summarise(Count = n())
+freqTableCompany <- freqTableCompany[order(freqTableCompany$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableCompany$Count)
+freqTableCompany <- cbind(freqTableCompany, Percentage = freqTableCompany$Count/totalSegments * 100)
+kable(freqTableCompany, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Die Firma 223 ist ein grosser Kunde.
+
+```{r collapse=TRUE}
+#Agent
+freqTableAgent <- cleanedList %>% group_by(Agent = cleanedList$Agent) %>% summarise(Count = n())
+freqTableAgent <- freqTableAgent[order(freqTableAgent$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableAgent$Count)
+freqTableAgent <- cbind(freqTableAgent, Percentage = freqTableAgent$Count/totalSegments * 100)
+kable(freqTableAgent, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Der Agent 240 betätigt über ein drittel der Reservationen.
+
+
+```{r collapse=TRUE}
+#ArrivalDateYear
+freqTableArrivalDateYear <- cleanedList %>% group_by(ArrivalDateYear = cleanedList$ArrivalDateYear) %>% summarise(Count = n())
+freqTableArrivalDateYear <- freqTableArrivalDateYear[order(freqTableArrivalDateYear$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableArrivalDateYear$Count)
+freqTableArrivalDateYear <- cbind(freqTableArrivalDateYear, Percentage = freqTableArrivalDateYear$Count/totalSegments * 100)
+kable(freqTableArrivalDateYear, digits = 2, format = "pipe")
+```
+Erkenntniss:
+Die Daten enthalten mit grosser Wahrscheindlichkeit nur Teildaten der Jahre 2015 und 2017.
+
+
+
+
+
+
+
+
 
 
 ## Aufgabe (4 Punkte): Prüfe Auffälligkeiten
