@@ -129,7 +129,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-dataFrame <- read.csv()
+dataFrame <- read.csv(pathFlavio)
 dataFrame
 ```
 
@@ -182,6 +182,9 @@ Doppelte Beobachtungen treten im vorliegenden Datensatz in unterschiedlicher Gru
 Hinweis: Aufgrund fehlender Hintergrundinformationen werden für die nächsten Schritte zunächst keine Beobachtungen entfernt, auch wenn im Datensatz viel redundante Informationen vorhanden sind!
 
 ```{r}
+biggestDuplicates <- newList[order(newList$n, decreasing = TRUE),]
+
+biggestDuplicates <- biggestDuplicates[1:4,]
 
 ```
 
@@ -197,6 +200,14 @@ Die folgenden Attribute sind neu zu benennen (alterName -> neuerName)
 - IsCanceled -> BookingCancelled
 
 ```{r}
+#names(dataFrame)
+
+dataFrame %>% rename(
+  BookingCancelled = IsCanceled, 
+  AverageDailyRate = ADR,
+  TotalSpecialRequests = TotalOfSpecialRequests
+  )
+
 
 ```
 
@@ -210,6 +221,9 @@ Hinweis: Verwende für deine Implementierung die Funktion `across()` und den Pos
 
 ```{r}
 
+dataFrame %>% mutate(across(.cols = everything()), str_trim(Meal, "both"))
+
+
 ```
 
 
@@ -218,7 +232,8 @@ Hinweis: Verwende für deine Implementierung die Funktion `across()` und den Pos
 Untersuche allfällige fehlende Informationen (NAs) im Data Frame und zähle wieviele NAs vorkommen. 
 
 ```{r}
-
+#Aufpassen bei bestimmten Funktionen werden fehlende Informationen automatisch als N/A kategorisiert
+table(is.na(dataFrame))
 ```
 
 
@@ -227,6 +242,8 @@ Untersuche allfällige fehlende Informationen (NAs) im Data Frame und zähle wie
 Ersetze *gleichzeitig alle* Werte "NULL" für die Attribute "Company" und "Agent" durch `NA` und und zähle wieviele NAs in jedem der beiden Attributen vorkommen.
 
 ```{r}
+dataFrame[is_empty(Agent)] = NA
+
 
 ```
 
@@ -242,7 +259,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `gsub()` oder Ähnlich
 
 
 ```{r}
-
+x <- 
 ```
 
 
