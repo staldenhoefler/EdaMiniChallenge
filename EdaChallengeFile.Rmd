@@ -129,7 +129,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-dataFrame <- read.csv()
+#dataFrame <- read.csv()
 dataFrame <- read.csv(pathFlavio)
 dataFrame
 ```
@@ -203,12 +203,11 @@ Die folgenden Attribute sind neu zu benennen (alterName -> neuerName)
 ```{r}
 #names(dataFrame)
 
-dataFrame %>% rename(
+dataFrame <- dataFrame %>% rename(
   BookingCancelled = IsCanceled, 
   AverageDailyRate = ADR,
   TotalSpecialRequests = TotalOfSpecialRequests
   )
-
 
 ```
 
@@ -221,10 +220,12 @@ Hinweis: Verwende für deine Implementierung die Funktion `across()` und den Pos
 
 
 ```{r}
+library(stringr)
+dataFrame <- dataFrame %>%
+  mutate(across(where(is.character), str_trim))
 
-dataFrame %>% mutate(across(.cols = everything()), str_trim(Meal, "both"))
-
-
+#glimpse(dataFrame)
+  
 ```
 
 
@@ -234,7 +235,9 @@ Untersuche allfällige fehlende Informationen (NAs) im Data Frame und zähle wie
 
 ```{r}
 #Aufpassen bei bestimmten Funktionen werden fehlende Informationen automatisch als N/A kategorisiert
-table(is.na(dataFrame))
+#Keine NAs vorhanden, gibt es fehlende Informationen?
+sapply(dataFrame, function(x) sum(is.na(x)))
+
 ```
 
 
@@ -243,7 +246,11 @@ table(is.na(dataFrame))
 Ersetze *gleichzeitig alle* Werte "NULL" für die Attribute "Company" und "Agent" durch `NA` und und zähle wieviele NAs in jedem der beiden Attributen vorkommen.
 
 ```{r}
-dataFrame[is_empty(Agent)] = NA
+#!!!Funktioniert aber ändert nur die Namen nicht den tatsächlichen Wert, muss noch überarbeitet werden, denke ich!!
+#Ändert den Wert im Dataframe aber nicht in der Konsole.
+NAs <- c("Company", "Agent")
+dataFrame %>%
+  mutate_at(vars(NAs), ~ str_replace(., "NULL", "NA"))
 
 
 ```
@@ -260,7 +267,12 @@ Hinweis: Verwende für deine Implementierung die Funktion `gsub()` oder Ähnlich
 
 
 ```{r}
-x <- 
+
+
+
+
+
+
 ```
 
 
@@ -276,7 +288,17 @@ Ersetze für das Attribut "Meal" die verwendeten Abkürzungen
 Ersetze weiter für die Attribute "BookingCancelled" und "IsRepeatedGuest" die Werte 1 durch "Yes" und 0 durch "No". 
 
 ```{r}
+dataFrame$Meal <- gsub("BB", "Bed & Breakfast",
+                  gsub("HB", "Half board",
+                  gsub("FB", "Full board",
+                  gsub("Undefined", "kein Paket", dataFrame$Meal))))
 
+
+
+
+#Code fuktioniert allerdings werden 2 seperate Dataframes generiert und nicht beide in der gleichen. Denis fragen?
+dataFrame %>% mutate(BookingCancelled=recode(BookingCancelled, "1"="Yes", "0"="No"))
+dataFrame %>% mutate(IsRepeatedGuest=recode(IsRepeatedGuest, "1"="Yes", "0"="No"))
 ```
 
 
@@ -287,6 +309,9 @@ Erstelle Datumsvariablen für Reservation und Ankunft aufgrund der Informationen
 Hinweis: Verwende für deine Implementierung die library `lubridate` und Informationen aus [R for Data Science, Chapter "Dates and times"](https://r4ds.had.co.nz/dates-and-times.html) sowie die Posts [Umgang mit Datumsinformationen](https://spaces.technik.fhnw.ch/spaces/explorative-datenanalyse/beitraege/umgang-mit-datumsinformationen) und [Umgang mit textuellen Daten mit tidyverse's stringr](https://spaces.technik.fhnw.ch/spaces/explorative-datenanalyse/beitraege/umgang-mit-textuellen-daten-mit-tidyverses-stringr).
 
 ```{r}
+library(lubridate)
+
+
 
 ```
 
@@ -327,6 +352,7 @@ sowie den Haushaltstyp (neue Faktor-Variable "HouseholdType"):
 - "Group" definiert als Buchung für mehr als zwei Erwachsene (mit oder ohne Kinder / Babies),
 
 ```{r}
+#dataFrame$TotalNights <- paste(dataFrame$StaysInWeekNights, dataFrame$StaysInWeekendNights)
 
 ```
 
