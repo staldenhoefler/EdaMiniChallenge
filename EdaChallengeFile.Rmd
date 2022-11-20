@@ -129,8 +129,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-dataFrame <- read.csv()
-dataFrame <- read.csv(pathFlavio)
+dataFrame <- read.csv(pathDenis)
 dataFrame
 ```
 
@@ -523,7 +522,12 @@ Erstelle eine tabellarische Häufigkeitsverteilung für das neu gebildete Attrib
 Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 
 ```{r}
-
+#HouseholdType
+freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$HouseholdType) %>% summarise(Count = n())
+freqTableHouseholdType <- freqTableHouseholdType[order(freqTableHouseholdType$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableHouseholdType$Count)
+freqTableHouseholdType <- cbind(freqTableHouseholdType, Percentage = freqTableHouseholdType$Count/totalSegments * 100)
+kable(freqTableHouseholdType, digits = 2, format = "pipe")
 ```
 
 
@@ -532,6 +536,11 @@ Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 Erstelle eine Statistik für das Attribut "AverageDailyRate" und identifiziere Auffälligkeiten.
 
 ```{r}
+dataFrameDates <- dataFrame
+dataFrameDates <- cbind(dataFrameDates, ArrivalDate = mdy(str_c(str_c(dataFrameDates$ArrivalDateMonth, dataFrameDates$ArrivalDateDayOfMonth, sep = " "), dataFrameDates$ArrivalDateYear, sep = ", ")))
+dataFrameDates <- dataFrameDates[order(dataFrameDates$ArrivalDate), ]
+
+
 
 ```
 
