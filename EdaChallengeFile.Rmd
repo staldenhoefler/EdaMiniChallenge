@@ -115,6 +115,7 @@ library(lubridate)
 library(ggmosaic)
 library(knitr)
 library(dplyr)
+library(ggplot2)
 ```
 
 
@@ -129,12 +130,8 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-<<<<<<< HEAD
 dataFrame <- read.csv(pathDenis)
-=======
-#dataFrame <- read.csv()
-dataFrame <- read.csv(pathFlavio)
->>>>>>> 562d324b46f7de7ddac0509badaf87309d7ed635
+
 dataFrame
 ```
 
@@ -416,12 +413,12 @@ kable(freqTableIsRepeatedGuest, digits = 2, format = "pipe")
 Erstelle eine summarische, univariate Statistik für alle Attribute und dokumentiere kurz allfällige Besonderheiten.
 
 ```{r collapse=TRUE}
-#IsCanceled
-freqTableIsCanceled <- cleanedList %>% group_by(IsCanceled = cleanedList$IsCanceled) %>% summarise(Count = n())
-freqTableIsCanceled <- freqTableIsCanceled[order(freqTableIsCanceled$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableIsCanceled$Count)
-freqTableIsCanceled <- cbind(freqTableIsCanceled, Percentage = freqTableIsCanceled$Count/totalSegments * 100)
-kable(freqTableIsCanceled, digits = 2, format = "pipe")
+#BookingCancelled
+freqTableBookingCancelled <- cleanedList %>% group_by(BookingCancelled = cleanedList$BookingCancelled) %>% summarise(Count = n())
+freqTableBookingCancelled <- freqTableBookingCancelled[order(freqTableBookingCancelled$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableBookingCancelled$Count)
+freqTableBookingCancelled <- cbind(freqTableBookingCancelled, Percentage = freqTableBookingCancelled$Count/totalSegments * 100)
+kable(freqTableBookingCancelled, digits = 2, format = "pipe")
 ```
 
 ```{r collapse=TRUE}
@@ -553,12 +550,13 @@ Erstelle eine tabellarische Häufigkeitsverteilung für das neu gebildete Attrib
 Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 
 ```{r}
-#HouseholdType
-freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$HouseholdType) %>% summarise(Count = n())
-freqTableHouseholdType <- freqTableHouseholdType[order(freqTableHouseholdType$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableHouseholdType$Count)
-freqTableHouseholdType <- cbind(freqTableHouseholdType, Percentage = freqTableHouseholdType$Count/totalSegments * 100)
-kable(freqTableHouseholdType, digits = 2, format = "pipe")
+#Erst möglich wenn die Aufgabe 4.9 abgeschlossen ist
+#HouseholdType 
+#freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$CustomerType) %>% summarise(Count = n())
+#freqTableHouseholdType <- freqTableHouseholdType[order(freqTableHouseholdType$Count, decreasing = TRUE),]
+#totalSegments <- sum(freqTableHouseholdType$Count)
+#freqTableHouseholdType <- cbind(freqTableHouseholdType, Percentage = freqTableHouseholdType$Count/totalSegments * 100)
+#kable(freqTableHouseholdType, digits = 2, format = "pipe")
 ```
 
 
@@ -570,10 +568,15 @@ Erstelle eine Statistik für das Attribut "AverageDailyRate" und identifiziere A
 dataFrameDates <- dataFrame
 dataFrameDates <- cbind(dataFrameDates, ArrivalDate = mdy(str_c(str_c(dataFrameDates$ArrivalDateMonth, dataFrameDates$ArrivalDateDayOfMonth, sep = " "), dataFrameDates$ArrivalDateYear, sep = ", ")))
 dataFrameDates <- dataFrameDates[order(dataFrameDates$ArrivalDate), ]
+plot(dataFrameDates$AverageDailyRate)
+ggplot(dataFrameDates, aes(x = dataFrameDates$ArrivalDate, y = dataFrameDates$AverageDailyRate))+geom_point()+geom_smooth()
 
 
 
 ```
+Identifizierte Auffälligkeiten:
+Im Sommer werden höhere Preise gezahlt.
+Spezielle Tage: 
 
 
 ## Aufgabe (2 Punkte): Erstelle einen bereinigten Datensatz
