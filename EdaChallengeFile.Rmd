@@ -267,11 +267,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `gsub()` oder Ähnlich
 
 
 ```{r}
-
-
-
-
-
+#Habe ich geschafft aber leider nicht mit der gsub Funktion, gerne Denis probieren
 
 ```
 
@@ -311,7 +307,7 @@ Hinweis: Verwende für deine Implementierung die library `lubridate` und Informa
 ```{r}
 library(lubridate)
 
-
+#Leider überhaupt nicht geschafft, Gerne Denis probieren.
 
 ```
 
@@ -323,7 +319,15 @@ Konvertiere sämtliche kategorialen Variablen und mache daraus Faktoren und übe
 Hinweis: Verwende für deine Implementierung `across()` und eine bestehende R Basis-Funktion zur Prüfung der erfolgreichen Bildung der Faktoren.
 
 ```{r}
+#kategoriale Variablen: Meal,Country, Marketsegment, Distributionschannel, ReservedRoomType, AssignedRoomType, DepositType, Agent, Company, Customertype, Average Daily Rate.
+#Diese gilt es als factor Variablen darzustellen, habe ich leider nich geschafft. Denis probieren.
+#Gibts es noch mehr kategoriale Variablen? 
 
+
+
+#Überprüfen mit R Basis Funktion
+class(dataFrame$BookingCancelled)
+class(dataFrame$DepositType)
 ```
 
 
@@ -333,14 +337,14 @@ Erstelle neue Variablen, welche Auskunft geben über
 
 - die Anzahl Logiernächte pro Buchung -> neue Variable "TotalNights" als Summe der Anzahl Nächte an Wochentagen ("StaysInWeekNights) und Wochenendtagen ("StaysInWeekendNights"), 
 - die Anzahl Personen pro Buchung -> neue Variable "GroupSize" als Summe von "Adults", "Children" und "Babies",
-- den bezahlte Preis pro Aufenthalt -> neue Variable "Price" gebildet als Produkt von "AverageDailyRate" und "TotalNights".
+- den bezahlten Preis pro Aufenthalt -> neue Variable "Price" gebildet als Produkt von "AverageDailyRate" und "TotalNights".
 
 Erstelle daraus abgeleitet weitere Attribute für die Art des Aufenthalts (neue Faktor-Variable "StayType"):
 
 - "Long stay" definiert als Aufenthalt von mehr als 7 Nächten,
 - "Full week" definiert als Aufenthalt von 7 Nächten,
 - "Week stay" definiert als Aufenthalt von weniger als 7 Tagen ohne Wochenendübernachtungen,
-- "Weeked only" definiert als eintägiger Aufenthalt mit einer Wochenendübernachtung,
+- "Weekend only" definiert als eintägiger Aufenthalt mit einer Wochenendübernachtung,
 - "Long weekend" definiert als zweitägiger Aufenthalt mit zwei Wochenendübernachtungen,
 
 sowie den Haushaltstyp (neue Faktor-Variable "HouseholdType"):
@@ -352,8 +356,28 @@ sowie den Haushaltstyp (neue Faktor-Variable "HouseholdType"):
 - "Group" definiert als Buchung für mehr als zwei Erwachsene (mit oder ohne Kinder / Babies),
 
 ```{r}
-#dataFrame$TotalNights <- paste(dataFrame$StaysInWeekNights, dataFrame$StaysInWeekendNights)
+#TotalNights Variable erstellen
+dataFrame$TotalNights <- dataFrame$StaysInWeekNights + dataFrame$StaysInWeekendNights
+#GroupSize Variable erstellen
+dataFrame$GroupSize <- dataFrame$Adults + dataFrame$Children + dataFrame$Babies
+#Price Variable erstellen
+dataFrame$Price <- dataFrame$AverageDailyRate * dataFrame$TotalNights
 
+#StayType Variable erstellen
+dataFrame %>%
+  mutate(StayType = case_when(TotalNights > 7 ~ "Long Stay",
+                              TotalNights == 7 ~ "Full week",
+                              StaysInWeekNights < 7 & StaysInWeekendNights == 0 ~ "Week Stay",
+                              TotalNights == 1 & StaysInWeekendNights == 1 ~ "Weekend only",
+                              StaysInWeekNights == 0 & StaysInWeekendNights == 2 ~ "Long Weekend"))
+
+#HouseholdType Variable erstellen     adults, children, babies
+dataFrame %>%
+  mutate(HouseholdType = case_when(Adults == 1 & Children == 0 & Babies == 0 ~ "Single",
+                                   Adults == 2 & Children == 0 & Babies == 0 ~ "Couple",
+                                   Adults == 1 & Children >= 0 & Babies >= 0 ~ "Single Parent",
+                                   Adults == 2 & Children >= 0 & Babies >= 0 ~ "Family",
+                                   Adults >  2 & Children >= 0 & Babies >= 0 ~ "Group"))
 ```
 
 
