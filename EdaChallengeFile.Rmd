@@ -130,7 +130,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-dataFrame <- read.csv()
+dataFrame <- read.csv("/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv")
 
 dataFrame
 ```
@@ -248,7 +248,6 @@ Ersetze *gleichzeitig alle* Werte "NULL" für die Attribute "Company" und "Agent
 
 ```{r}
 #!!!Funktioniert aber ändert nur die Namen nicht den tatsächlichen Wert, muss noch überarbeitet werden, denke ich!!
-#Ändert den Wert im Dataframe aber nicht in der Konsole.
 NAs <- c("Company", "Agent")
 dataFrame %>%
   mutate_at(vars(NAs), ~ str_replace(., "NULL", "NA"))
@@ -290,12 +289,8 @@ dataFrame$Meal <- gsub("BB", "Bed & Breakfast",
                   gsub("FB", "Full board",
                   gsub("Undefined", "kein Paket", dataFrame$Meal))))
 
-
-
-
-#Code fuktioniert allerdings werden 2 seperate Dataframes generiert und nicht beide in der gleichen. Denis fragen?
-dataFrame %>% mutate(BookingCancelled=recode(BookingCancelled, "1"="Yes", "0"="No"))
-dataFrame %>% mutate(IsRepeatedGuest=recode(IsRepeatedGuest, "1"="Yes", "0"="No"))
+dataFrame <- dataFrame %>% mutate(BookingCancelled=recode(BookingCancelled, "1"="Yes", "0"="No"))
+dataFrame <- dataFrame %>% mutate(IsRepeatedGuest=recode(IsRepeatedGuest, "1"="Yes", "0"="No"))
 ```
 
 
