@@ -307,16 +307,12 @@ Hinweis: Verwende für deine Implementierung die library `lubridate` und Informa
 
 ```{r}
 library(lubridate)
-<<<<<<< HEAD
 
-#Leider überhaupt nicht geschafft, Gerne Denis probieren.
-=======
 #Das wäre ein Vorschlag, ich weiss aber nicht ob dies so oder in einem anderen Format gefordert wird.
 #dataFrameDates <- dataFrame
 #dataFrameDates <- cbind(dataFrameDates, ArrivalDate = mdy(str_c(str_c(dataFrameDates$ArrivalDateMonth, dataFrameDates$ArrivalDateDayOfMonth, sep = " "), #dataFrameDates$ArrivalDateYear, sep = ", ")))
 #dataFrameDates <- dataFrameDates[order(dataFrameDates$ArrivalDate), ]
 
->>>>>>> a0f7ad3a73f92a758cc78f087c4d92cd2073783d
 
 ```
 
