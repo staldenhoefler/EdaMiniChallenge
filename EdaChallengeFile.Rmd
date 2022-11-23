@@ -130,7 +130,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-dataFrame <- read.csv("/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv")
+dataFrame <- read.csv(pathDenis)
 
 dataFrame
 ```
@@ -403,8 +403,13 @@ freqTableDistributionChannel <- freqTableDistributionChannel[order(freqTableDist
 totalSegments <- sum(freqTableDistributionChannel$Count)
 freqTableDistributionChannel <- cbind(freqTableDistributionChannel, Percentage = freqTableDistributionChannel$Count/totalSegments * 100)
 
-
 ```
+
+```{r}
+summary(dataFrame)
+```
+
+
 
 
 ## Aufgabe (3 Punkte): Erstelle weitere Häufigkeitstabellen
@@ -422,7 +427,7 @@ freqTableMeal <- cbind(freqTableMeal, Percentage = freqTableMeal$Count/totalSegm
 kable(freqTableMeal, digits = 2, format = "pipe")
 
 #IsRepeatedGuest
-freqTableIsRepeatedGuest <- cleanedList %>% group_by(Meal = cleanedList$IsRepeatedGuest) %>% summarise(Count = n())
+freqTableIsRepeatedGuest <- cleanedList %>% group_by(IsRepeatedGuest = cleanedList$IsRepeatedGuest) %>% summarise(Count = n())
 freqTableIsRepeatedGuest <- freqTableIsRepeatedGuest[order(freqTableIsRepeatedGuest$Count, decreasing = TRUE),]
 totalSegments <- sum(freqTableIsRepeatedGuest$Count)
 freqTableIsRepeatedGuest <- cbind(freqTableIsRepeatedGuest, Percentage = freqTableIsRepeatedGuest$Count/totalSegments * 100)
@@ -573,13 +578,13 @@ Erstelle eine tabellarische Häufigkeitsverteilung für das neu gebildete Attrib
 Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 
 ```{r}
-#Erst möglich wenn die Aufgabe 4.9 abgeschlossen ist
+
 #HouseholdType 
-#freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$CustomerType) %>% summarise(Count = n())
-#freqTableHouseholdType <- freqTableHouseholdType[order(freqTableHouseholdType$Count, decreasing = TRUE),]
-#totalSegments <- sum(freqTableHouseholdType$Count)
-#freqTableHouseholdType <- cbind(freqTableHouseholdType, Percentage = freqTableHouseholdType$Count/totalSegments * 100)
-#kable(freqTableHouseholdType, digits = 2, format = "pipe")
+freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$CustomerType) %>% summarise(Count = n())
+freqTableHouseholdType <- freqTableHouseholdType[order(freqTableHouseholdType$Count, decreasing = TRUE),]
+totalSegments <- sum(freqTableHouseholdType$Count)
+freqTableHouseholdType <- cbind(freqTableHouseholdType, Percentage = freqTableHouseholdType$Count/totalSegments * 100)
+kable(freqTableHouseholdType, digits = 2, format = "pipe")
 ```
 
 
