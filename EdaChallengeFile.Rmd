@@ -267,7 +267,8 @@ Hinweis: Verwende für deine Implementierung die Funktion `gsub()` oder Ähnlich
 
 
 ```{r}
-#Habe ich geschafft aber leider nicht mit der gsub Funktion, gerne Denis probieren
+ dataFrame <- dataFrame %>%
+       mutate(across(c(MarketSegment, DistributionChannel), ~ gsub("TA", "Tour Agent", gsub("TO", "Tour Operator", .))))
 
 ```
 
