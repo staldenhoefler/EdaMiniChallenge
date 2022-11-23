@@ -305,9 +305,10 @@ Hinweis: Verwende für deine Implementierung die library `lubridate` und Informa
 library(lubridate)
 
 #Das wäre ein Vorschlag, ich weiss aber nicht ob dies so oder in einem anderen Format gefordert wird.
-#dataFrameDates <- dataFrame
-#dataFrameDates <- cbind(dataFrameDates, ArrivalDate = mdy(str_c(str_c(dataFrameDates$ArrivalDateMonth, dataFrameDates$ArrivalDateDayOfMonth, sep = " "), #dataFrameDates$ArrivalDateYear, sep = ", ")))
-#dataFrameDates <- dataFrameDates[order(dataFrameDates$ArrivalDate), ]
+dataFrameDates <- dataFrame
+dataFrame <- cbind(dataFrame, ArrivalDate = mdy(str_c(str_c(dataFrame$ArrivalDateMonth, dataFrame$ArrivalDateDayOfMonth, sep = " "), dataFrame$ArrivalDateYear, sep = ", ")))
+
+dataFrame <- dataFrame[order(dataFrame$ArrivalDate), ]
 
 
 ```
@@ -324,11 +325,14 @@ Hinweis: Verwende für deine Implementierung `across()` und eine bestehende R Ba
 #Diese gilt es als factor Variablen darzustellen, habe ich leider nich geschafft. Denis probieren.
 #Gibts es noch mehr kategoriale Variablen? 
 
+dataFrame <- dataFrame %>% 
+  mutate(across(c(Meal, Country, DistributionChannel, ReservedRoomType, AssignedRoomType, DepositType, Agent, Company, CustomerType, BookingCancelled, IsRepeatedGuest, ReservationStatus), ~ factor(.)))
+
+
 
 
 #Überprüfen mit R Basis Funktion
-class(dataFrame$BookingCancelled)
-class(dataFrame$DepositType)
+sapply(dataFrame, class)
 ```
 
 
@@ -365,20 +369,24 @@ dataFrame$GroupSize <- dataFrame$Adults + dataFrame$Children + dataFrame$Babies
 dataFrame$Price <- dataFrame$AverageDailyRate * dataFrame$TotalNights
 
 #StayType Variable erstellen
-dataFrame %>%
+dataFrame <- dataFrame %>%
   mutate(StayType = case_when(TotalNights > 7 ~ "Long Stay",
                               TotalNights == 7 ~ "Full week",
                               StaysInWeekNights < 7 & StaysInWeekendNights == 0 ~ "Week Stay",
                               TotalNights == 1 & StaysInWeekendNights == 1 ~ "Weekend only",
                               StaysInWeekNights == 0 & StaysInWeekendNights == 2 ~ "Long Weekend"))
+dataFrame$StayType <- as.factor(dataFrame$StayType)
+
+
 
 #HouseholdType Variable erstellen     adults, children, babies
-dataFrame %>%
+dataFrame <-dataFrame %>%
   mutate(HouseholdType = case_when(Adults == 1 & Children == 0 & Babies == 0 ~ "Single",
                                    Adults == 2 & Children == 0 & Babies == 0 ~ "Couple",
                                    Adults == 1 & Children >= 0 & Babies >= 0 ~ "Single Parent",
                                    Adults == 2 & Children >= 0 & Babies >= 0 ~ "Family",
                                    Adults >  2 & Children >= 0 & Babies >= 0 ~ "Group"))
+dataFrame$HouseholdType <- as.factor(dataFrame$HouseholdType)
 ```
 
 
@@ -581,7 +589,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 ```{r}
 
 #HouseholdType 
-freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$CustomerType) %>% summarise(Count = n())
+freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$HouseholdType) %>% summarise(Count = n())
 freqTableHouseholdType <- freqTableHouseholdType[order(freqTableHouseholdType$Count, decreasing = TRUE),]
 totalSegments <- sum(freqTableHouseholdType$Count)
 freqTableHouseholdType <- cbind(freqTableHouseholdType, Percentage = freqTableHouseholdType$Count/totalSegments * 100)
@@ -594,11 +602,8 @@ kable(freqTableHouseholdType, digits = 2, format = "pipe")
 Erstelle eine Statistik für das Attribut "AverageDailyRate" und identifiziere Auffälligkeiten.
 
 ```{r}
-dataFrameDates <- dataFrame
-dataFrameDates <- cbind(dataFrameDates, ArrivalDate = mdy(str_c(str_c(dataFrameDates$ArrivalDateMonth, dataFrameDates$ArrivalDateDayOfMonth, sep = " "), dataFrameDates$ArrivalDateYear, sep = ", ")))
-dataFrameDates <- dataFrameDates[order(dataFrameDates$ArrivalDate), ]
-plot(dataFrameDates$AverageDailyRate)
-ggplot(dataFrameDates, aes(x = dataFrameDates$ArrivalDate, y = dataFrameDates$AverageDailyRate))+geom_point()+geom_smooth()
+plot(dataFrame$AverageDailyRate)
+ggplot(dataFrame, aes(x = dataFrame$ArrivalDate, y = dataFrame$AverageDailyRate))+geom_point()+geom_smooth()
 
 
 
@@ -606,7 +611,7 @@ ggplot(dataFrameDates, aes(x = dataFrameDates$ArrivalDate, y = dataFrameDates$Av
 Identifizierte Auffälligkeiten:
 Im Sommer werden höhere Preise gezahlt.
 Spezielle Tage: 
-
+-Silvester
 
 ## Aufgabe (2 Punkte): Erstelle einen bereinigten Datensatz
 
