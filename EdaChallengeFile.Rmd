@@ -130,7 +130,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-dataFrame <- read.csv(pathFlavio)
+dataFrame <- read.csv()
 
 dataFrame
 ```
@@ -767,6 +767,16 @@ Hinweis: Verwende für deine Implementierung `tidyverse` und `lubridate`.
 Identifiziere die fünf Tage mit den meisten Zimmer-Buchungen gemessen am Datum der Ankunft, wobei die stornierten Buchungen nicht zu berücksichtigen sind. Gib zusätzlich die Anzahl Personen an, welche an diesen Tagen eingecheckt haben.
 
 ```{r}
+topFive <- select(dataFrame, "ArrivalDate", "GroupSize", "BookingCancelled")
+topFive <- topFive[topFive$BookingCancelled!="No",]
+topFive <- topFive[order(topFive$GroupSize, decreasing = TRUE), ]
+
+
+
+
+
+
+
 
 ```
 
@@ -789,16 +799,7 @@ ZweiTausendSechZehn <- mutate(ZweiTausendSechZehn) %>% summarise(
 ZweiTausendSechZehn <- ZweiTausendSechZehn %>% mutate(across(where(is.numeric), round, 2))
 
 #Histogram
-P <- ZweiTausendSechZehn %>%
-  filter( AverageWeeklyRate<53 ) %>%
-  ggplot( aes(x=AverageWeeklyRate)) +
-    geom_histogram( binwidth = 200, fill="#69b3a2", color="#e9ecef", alpha=0.9) +
-    ggtitle("AverageWeeklyRate 2016") +
-    theme_ipsum() +
-    theme(
-      plot.title = element_text(size=15))
 
-P
 
 
 ```
