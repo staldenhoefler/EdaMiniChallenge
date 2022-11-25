@@ -820,7 +820,7 @@ Berechne für 2016 die zeitliche Entwicklung des Tagesdurchschnittspreises ("Ave
 Bestimme und markiere dann visuell die Kalenderwoche mit dem höchsten Tagesdurchschnittspreis mit Hilfe einer vertikalen roten Linie. 
 
 ```{r}
-library(hrbrthemes)
+library(ggExtra)
 
 ZweiTausendSechZehn <- dataFrame %>%
   mutate(ArrivalDate = as.Date(ArrivalDate, format = "%d/%m/%y")) %>%
@@ -831,7 +831,9 @@ ZweiTausendSechZehn <- mutate(ZweiTausendSechZehn) %>% summarise(
 ZweiTausendSechZehn <- ZweiTausendSechZehn %>% mutate(across(where(is.numeric), round, 2))
 
 #Histogram
+histogram <- ggplot(ZweiTausendSechZehn, aes(x=ArrivalDateWeekNumber)) + geom_point(aes(y=ZweiTausendSechZehn$AverageWeeklyRate), alpha = 0) + geom_histogram(aes(y=stat(ZweiTausendSechZehn$AverageWeeklyRate)), binwidth = 1) +geom_vline(xintercept=33, color="red")
 
+ggMarginal(histogram, type = "boxplot", margins = "y")
 
 
 ```
