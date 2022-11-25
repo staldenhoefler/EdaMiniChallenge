@@ -130,7 +130,7 @@ Hinweis: Verwende für deine Implementierung die Funktion `read.csv()` und das F
 ```{r}
 pathDenis <- "C:/Users/denis/OneDrive/Dokumente/FHNW/1.Sem/eda/Hotelchallenge/Daten/HS22_EDA_MC/H1.csv"
 pathFlavio <- "/Users/flavio/Library/CloudStorage/OneDrive-FHNW/EDA/HS22_EDA_MC/H1.csv"
-dataFrame <- read.csv()
+dataFrame <- read.csv(pathDenis)
 
 dataFrame
 ```
@@ -568,48 +568,15 @@ Idee: Wenn die Aussage korrekt ist, muss der Schnitt der Buchungen von einer Ein
 
 
 ```{r}
-
-#Betrachtung Anzahl Buchungen Tagespreis Pro Zimmer
-ggplot(cleanDataFrame, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
-sdMeanDF <- data.frame(groupSize = 0, SD = sd(cleanDataFrame$AverageDailyRate), Mean = mean(cleanDataFrame$AverageDailyRate))
-
-#Betrachtung Anzahl Buchungen pro 1 Person
-groupSize1 <- filter(cleanDataFrame, GroupSize == 1)
-groupSize1$AverageDailyRate <- groupSize1$AverageDailyRate/1
-ggplot(groupSize1, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
-sdMeanDF <- rbind(sdMeanDF, c(1, sd(groupSize1$AverageDailyRate), mean(groupSize1$AverageDailyRate)))
-
-#Betrachtung Anzahl Buchungen pro 2 Personen
-groupSize2 <- filter(cleanDataFrame, GroupSize == 2)
-groupSize2$AverageDailyRate <- groupSize2$AverageDailyRate/2
-ggplot(groupSize2, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
-sdMeanDF <- rbind(sdMeanDF, c(2, sd(groupSize2$AverageDailyRate), mean(groupSize2$AverageDailyRate)))
-
-#Betrachtung Anzahl Buchungen pro 3 Personen
-groupSize3 <- filter(cleanDataFrame, GroupSize == 3)
-groupSize3$AverageDailyRate <- groupSize3$AverageDailyRate/3
-ggplot(groupSize3, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
-sdMeanDF <- rbind(sdMeanDF, c(3, sd(groupSize3$AverageDailyRate), mean(groupSize3$AverageDailyRate)))
-
-
-#Betrachtung Anzahl Buchungen pro 4 Personen
-groupSize4 <- filter(cleanDataFrame, GroupSize == 4)
-groupSize4$AverageDailyRate <- groupSize4$AverageDailyRate/4
-ggplot(groupSize4, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
-sdMeanDF <- rbind(sdMeanDF, c(4, sd(groupSize4$AverageDailyRate), mean(groupSize4$AverageDailyRate)))
-
-
-sdMeanDF
-
-dataFrameGroupSizeFact <- filter(cleanDataFrame, GroupSize < 6)
-dataFrameGroupSizeFact$GroupSize <- as.factor(dataFrameGroupSizeFact$GroupSize)
-
-ggplot(dataFrameGroupSizeFact, aes(x=AverageDailyRate, color=GroupSize, fill=GroupSize))+geom_density(alpha = 0.5)
-
+cleanDataFrameNew <- cbind(cleanDataFrame, dailyRatePerPerson)
+cleanDataFrameNew <- filter(cleanDataFrameNew, GroupSize < 6)
+cleanDataFrameNew$GroupSize <- as.factor(cleanDataFrameNew$GroupSize)
+ggplot(cleanDataFrameNew, aes(x=dailyRatePerPerson, fill=GroupSize))+geom_histogram(binwidth = 10, alpha = 0.5) +scale_x_continuous(limits = c(0, 300))
+ggplot(cleanDataFrameNew, aes(x=AverageDailyRate, fill=GroupSize))+geom_histogram(binwidth = 10, alpha = 0.5)+scale_x_continuous(limits = c(0, 300))
 ```
-
 Auswertung:
-?
+Die Verteilungskurven überlagen sich im Wesentlichen. Daraus folgt, dass der Übernachtungspreis tendentiell mit der Belegung pro Zimmer korreliert.
+
 
 
 
