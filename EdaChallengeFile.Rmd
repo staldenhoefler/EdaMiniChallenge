@@ -322,7 +322,7 @@ Hinweis: Verwende für deine Implementierung `across()` und eine bestehende R Ba
 #Gibts es noch mehr kategoriale Variablen? 
 
 dataFrame <- dataFrame %>% 
-  mutate(across(c(Meal, Country, DistributionChannel, ReservedRoomType, AssignedRoomType, DepositType, Agent, Company, CustomerType, BookingCancelled, IsRepeatedGuest, ReservationStatus), ~ factor(.)))
+  mutate(across(c(Meal, Country, DistributionChannel, ReservedRoomType, AssignedRoomType, DepositType, Agent, Company, CustomerType, BookingCancelled, IsRepeatedGuest, ReservationStatus, MarketSegment), ~ factor(.)))
 
 
 
@@ -430,7 +430,7 @@ kable(freqTableIsRepeatedGuest, digits = 2, format = "pipe")
 
 Erstelle eine summarische, univariate Statistik für alle Attribute und dokumentiere kurz allfällige Besonderheiten.
 
-```{r collapse=TRUE}
+```{r}
 summary(dataFrame)
 ```
 Erkenntnisse:
@@ -851,7 +851,6 @@ LeadTime in Korrelation zu BookingCancelled
 Hypothese:
 Höhere Leadtime führt zu einer höheren Wahrscheinlichkeit dass die Buchung gecanceld wird.
 ```{r}
-
 cor(as.integer(dataFrameOld$LeadTime), as.integer(dataFrameOld$BookingCancelled))
 
 
