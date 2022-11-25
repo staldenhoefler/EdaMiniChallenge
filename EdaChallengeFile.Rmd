@@ -767,16 +767,6 @@ Hinweis: Verwende für deine Implementierung `tidyverse` und `lubridate`.
 Identifiziere die fünf Tage mit den meisten Zimmer-Buchungen gemessen am Datum der Ankunft, wobei die stornierten Buchungen nicht zu berücksichtigen sind. Gib zusätzlich die Anzahl Personen an, welche an diesen Tagen eingecheckt haben.
 
 ```{r}
-topFive <- select(dataFrame, "ArrivalDate", "GroupSize", "BookingCancelled")
-topFive <- topFive[topFive$BookingCancelled!="No",]
-topFive <- topFive[order(topFive$GroupSize, decreasing = TRUE), ]
-
-
-
-
-
-
-
 
 ```
 
@@ -788,19 +778,6 @@ Berechne für 2016 die zeitliche Entwicklung des Tagesdurchschnittspreises ("Ave
 Bestimme und markiere dann visuell die Kalenderwoche mit dem höchsten Tagesdurchschnittspreis mit Hilfe einer vertikalen roten Linie. 
 
 ```{r}
-library(hrbrthemes)
-
-ZweiTausendSechZehn <- dataFrame %>%
-  mutate(ArrivalDate = as.Date(ArrivalDate, format = "%d/%m/%y")) %>%
-  filter(ArrivalDate >= "2016-01-01" & ArrivalDate <= "2016-12-31")
-ZweiTausendSechZehn <- dataFrame %>% group_by(ArrivalDateWeekNumber) 
-ZweiTausendSechZehn <- mutate(ZweiTausendSechZehn) %>% summarise(
-  AverageWeeklyRate = mean(AverageDailyRate))
-ZweiTausendSechZehn <- ZweiTausendSechZehn %>% mutate(across(where(is.numeric), round, 2))
-
-#Histogram
-
-
 
 ```
 
