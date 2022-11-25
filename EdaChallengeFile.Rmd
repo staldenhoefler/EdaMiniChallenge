@@ -249,7 +249,7 @@ Ersetze *gleichzeitig alle* Werte "NULL" für die Attribute "Company" und "Agent
 ```{r}
 #!!!Funktioniert aber ändert nur die Namen nicht den tatsächlichen Wert, muss noch überarbeitet werden, denke ich!!
 NAs <- c("Company", "Agent")
-dataFrame %>%
+dataFrame <- dataFrame %>%
   mutate_at(vars(NAs), ~ str_replace(., "NULL", "NA"))
 
 
@@ -285,6 +285,7 @@ Ersetze für das Attribut "Meal" die verwendeten Abkürzungen
 Ersetze weiter für die Attribute "BookingCancelled" und "IsRepeatedGuest" die Werte 1 durch "Yes" und 0 durch "No". 
 
 ```{r}
+dataFrameOld <- dataFrame
 dataFrame$Meal <- gsub("BB", "Bed & Breakfast",
                   gsub("HB", "Half board",
                   gsub("FB", "Full board",
@@ -302,15 +303,10 @@ Erstelle Datumsvariablen für Reservation und Ankunft aufgrund der Informationen
 Hinweis: Verwende für deine Implementierung die library `lubridate` und Informationen aus [R for Data Science, Chapter "Dates and times"](https://r4ds.had.co.nz/dates-and-times.html) sowie die Posts [Umgang mit Datumsinformationen](https://spaces.technik.fhnw.ch/spaces/explorative-datenanalyse/beitraege/umgang-mit-datumsinformationen) und [Umgang mit textuellen Daten mit tidyverse's stringr](https://spaces.technik.fhnw.ch/spaces/explorative-datenanalyse/beitraege/umgang-mit-textuellen-daten-mit-tidyverses-stringr).
 
 ```{r}
-library(lubridate)
-
-#Das wäre ein Vorschlag, ich weiss aber nicht ob dies so oder in einem anderen Format gefordert wird.
-dataFrameDates <- dataFrame
 dataFrame <- cbind(dataFrame, ArrivalDate = mdy(str_c(str_c(dataFrame$ArrivalDateMonth, dataFrame$ArrivalDateDayOfMonth, sep = " "), dataFrame$ArrivalDateYear, sep = ", ")))
 
 dataFrame <- dataFrame[order(dataFrame$ArrivalDate), ]
-
-
+dataFrame$ReservationStatusDate <- as.Date(dataFrame$ReservationStatusDate)
 ```
 
 
@@ -326,7 +322,7 @@ Hinweis: Verwende für deine Implementierung `across()` und eine bestehende R Ba
 #Gibts es noch mehr kategoriale Variablen? 
 
 dataFrame <- dataFrame %>% 
-  mutate(across(c(Meal, Country, DistributionChannel, ReservedRoomType, AssignedRoomType, DepositType, Agent, Company, CustomerType, BookingCancelled, IsRepeatedGuest, ReservationStatus), ~ factor(.)))
+  mutate(across(c(Meal, Country, DistributionChannel, ReservedRoomType, AssignedRoomType, DepositType, Agent, Company, CustomerType, BookingCancelled, IsRepeatedGuest, ReservationStatus, MarketSegment), ~ factor(.)))
 
 
 
@@ -399,23 +395,7 @@ Gib für die beiden oben bearbeiteten Attribute "MarketSegment" und "Distributio
 Hinweis: Verwende für deine Implementierung nur **einen** Aufruf der Funktion `summary()`.
 
 ```{r}
-cleanedList <- dataFrame
-#Marketsegment
-freqTableMarketSegment <- cleanedList %>% group_by(Marketsegment = cleanedList$MarketSegment) %>% summarise(Count = n())
-freqTableMarketSegment <- freqTableMarketSegment[order(freqTableMarketSegment$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableMarketSegment$Count)
-freqTableMarketSegment <- cbind(freqTableMarketSegment, Percentage = freqTableMarketSegment$Count/totalSegments * 100)
-
-#DistributionChannel
-freqTableDistributionChannel <- cleanedList %>% group_by(DistributionChannel = cleanedList$DistributionChannel) %>% summarise(Count = n())
-freqTableDistributionChannel <- freqTableDistributionChannel[order(freqTableDistributionChannel$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableDistributionChannel$Count)
-freqTableDistributionChannel <- cbind(freqTableDistributionChannel, Percentage = freqTableDistributionChannel$Count/totalSegments * 100)
-
-```
-
-```{r}
-summary(dataFrame)
+summary(dataFrame[,c("MarketSegment", "DistributionChannel")])
 ```
 
 
@@ -428,6 +408,7 @@ Gib für die Attribute "Meal" und "IsRepeatedGuest" separat tabellarische Häufi
 Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 
 ```{r}
+cleanedList <- dataFrame
 #Meals
 freqTableMeal <- cleanedList %>% group_by(Meal = cleanedList$Meal) %>% summarise(Count = n())
 freqTableMeal <- freqTableMeal[order(freqTableMeal$Count, decreasing = TRUE),]
@@ -449,135 +430,20 @@ kable(freqTableIsRepeatedGuest, digits = 2, format = "pipe")
 
 Erstelle eine summarische, univariate Statistik für alle Attribute und dokumentiere kurz allfällige Besonderheiten.
 
-```{r collapse=TRUE}
-#BookingCancelled
-freqTableBookingCancelled <- cleanedList %>% group_by(BookingCancelled = cleanedList$BookingCancelled) %>% summarise(Count = n())
-freqTableBookingCancelled <- freqTableBookingCancelled[order(freqTableBookingCancelled$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableBookingCancelled$Count)
-freqTableBookingCancelled <- cbind(freqTableBookingCancelled, Percentage = freqTableBookingCancelled$Count/totalSegments * 100)
-kable(freqTableBookingCancelled, digits = 2, format = "pipe")
+```{r}
+summary(dataFrame)
 ```
-
-```{r collapse=TRUE}
-#LeadTime
-freqTableLeadTime <- cleanedList %>% group_by(LeadTime = cleanedList$LeadTime) %>% summarise(Count = n())
-freqTableLeadTime <- freqTableLeadTime[order(freqTableLeadTime$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableLeadTime$Count)
-freqTableLeadTime <- cbind(freqTableLeadTime, Percentage = freqTableLeadTime$Count/totalSegments * 100)
-kable(freqTableLeadTime, digits = 2, format = "pipe")
-```
-Erkenntniss:
+Erkenntnisse:
+Viele(Ca. 1/3) stornierte Buchungen.
 Erstaundlich viele kurzfristige Buchungen.
-
-```{r collapse=TRUE}
-#Country
-freqTableCountry <- cleanedList %>% group_by(Country = cleanedList$Country) %>% summarise(Count = n())
-freqTableCountry <- freqTableCountry[order(freqTableCountry$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableCountry$Count)
-freqTableCountry <- cbind(freqTableCountry, Percentage = freqTableCountry$Count/totalSegments * 100)
-kable(freqTableCountry, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Viele Besucher von Portugal.
-
-
-```{r collapse=TRUE}
-#BookingChanges
-freqTableBookingChanges <- cleanedList %>% group_by(BookingChanges = cleanedList$BookingChanges) %>% summarise(Count = n())
-freqTableBookingChanges <- freqTableBookingChanges[order(freqTableBookingChanges$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableBookingChanges$Count)
-freqTableBookingChanges <- cbind(freqTableBookingChanges, Percentage = freqTableBookingChanges$Count/totalSegments * 100)
-kable(freqTableBookingChanges, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Keine auserordentliche Erkenntniss
-
-```{r collapse=TRUE}
-#DepositType
-freqTableDepositType <- cleanedList %>% group_by(DepositType = cleanedList$DepositType) %>% summarise(Count = n())
-freqTableDepositType <- freqTableDepositType[order(freqTableDepositType$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableDepositType$Count)
-freqTableDepositType <- cbind(freqTableDepositType, Percentage = freqTableDepositType$Count/totalSegments * 100)
-kable(freqTableDepositType, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Hauptsächlich kein Depot hinterlegt.
-
-```{r collapse=TRUE}
-#CustomerType
-freqTableCustomerType <- cleanedList %>% group_by(CustomerType = cleanedList$CustomerType) %>% summarise(Count = n())
-freqTableCustomerType <- freqTableCustomerType[order(freqTableCustomerType$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableCustomerType$Count)
-freqTableCustomerType <- cbind(freqTableCustomerType, Percentage = freqTableCustomerType$Count/totalSegments * 100)
-kable(freqTableCustomerType, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Keine speziellen Erkenntnisse.
-
-```{r collapse=TRUE}
-#RequiredCarParkingSpaces
-freqTableRequiredCarParkingSpaces <- cleanedList %>% group_by(RequiredCarParkingSpaces = cleanedList$RequiredCarParkingSpaces) %>% summarise(Count = n())
-freqTableRequiredCarParkingSpaces <- freqTableRequiredCarParkingSpaces[order(freqTableRequiredCarParkingSpaces$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableRequiredCarParkingSpaces$Count)
-freqTableRequiredCarParkingSpaces <- cbind(freqTableRequiredCarParkingSpaces, Percentage = freqTableRequiredCarParkingSpaces$Count/totalSegments * 100)
-kable(freqTableRequiredCarParkingSpaces, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Die Mehrheit kommt ohne Auto.
-
-
-```{r collapse=TRUE}
-#ReservationStatus
-freqTableReservationStatus <- cleanedList %>% group_by(ReservationStatus = cleanedList$ReservationStatus) %>% summarise(Count = n())
-freqTableReservationStatus <- freqTableReservationStatus[order(freqTableReservationStatus$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableReservationStatus$Count)
-freqTableReservationStatus <- cbind(freqTableReservationStatus, Percentage = freqTableReservationStatus$Count/totalSegments * 100)
-kable(freqTableReservationStatus, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Keine speziellen Erkenntnisse.
-
-```{r collapse=TRUE}
-#Company
-freqTableCompany <- cleanedList %>% group_by(Company = cleanedList$Company) %>% summarise(Count = n())
-freqTableCompany <- freqTableCompany[order(freqTableCompany$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableCompany$Count)
-freqTableCompany <- cbind(freqTableCompany, Percentage = freqTableCompany$Count/totalSegments * 100)
-kable(freqTableCompany, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Die Firma 223 ist ein grosser Kunde.
-
-```{r collapse=TRUE}
-#Agent
-freqTableAgent <- cleanedList %>% group_by(Agent = cleanedList$Agent) %>% summarise(Count = n())
-freqTableAgent <- freqTableAgent[order(freqTableAgent$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableAgent$Count)
-freqTableAgent <- cbind(freqTableAgent, Percentage = freqTableAgent$Count/totalSegments * 100)
-kable(freqTableAgent, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Der Agent 240 betätigt über ein drittel der Reservationen.
-
-
-```{r collapse=TRUE}
-#ArrivalDateYear
-freqTableArrivalDateYear <- cleanedList %>% group_by(ArrivalDateYear = cleanedList$ArrivalDateYear) %>% summarise(Count = n())
-freqTableArrivalDateYear <- freqTableArrivalDateYear[order(freqTableArrivalDateYear$Count, decreasing = TRUE),]
-totalSegments <- sum(freqTableArrivalDateYear$Count)
-freqTableArrivalDateYear <- cbind(freqTableArrivalDateYear, Percentage = freqTableArrivalDateYear$Count/totalSegments * 100)
-kable(freqTableArrivalDateYear, digits = 2, format = "pipe")
-```
-Erkenntniss:
-Die Daten enthalten mit grosser Wahrscheindlichkeit nur Teildaten der Jahre 2015 und 2017.
-
-
-
-
-
-
-
-
+Wenig Kinder und Babies in diesem Hotel.
+Fast nur Bed&Breakfast Verpflegung.
+Fast keine wiederholdenden Gäste.
+Kaum Wartezeit jedoch ist das Maximum sehr hoch -> Ausreisser?
+Ein negativer Preis? Ist das möglich?
+Daten sind von 1.Juli 2015 bis 31.August 2017
+Gruppengrösse von 0? -> nicht möglich.
+Viele NA's bei Staytyp. Kommen durch Besucher welche unter der Woche An- und direkt wieder Abreisen.
 
 
 ## Aufgabe (4 Punkte): Prüfe Auffälligkeiten
@@ -587,7 +453,6 @@ Erstelle eine tabellarische Häufigkeitsverteilung für das neu gebildete Attrib
 Hinweis: Verwende für deine Implementierung die Funktion `kable()`.
 
 ```{r}
-
 #HouseholdType 
 freqTableHouseholdType <- cleanedList %>% group_by(HouseholdType = cleanedList$HouseholdType) %>% summarise(Count = n())
 freqTableHouseholdType <- freqTableHouseholdType[order(freqTableHouseholdType$Count, decreasing = TRUE),]
@@ -610,6 +475,7 @@ ggplot(dataFrame, aes(x = dataFrame$ArrivalDate, y = dataFrame$AverageDailyRate)
 ```
 Identifizierte Auffälligkeiten:
 Im Sommer werden höhere Preise gezahlt.
+Viele Buchungen mit dem Preis 0.
 Spezielle Tage: 
 -Silvester
 
@@ -622,6 +488,13 @@ Bereinige das Data Frame, indem du Beobachtungen mit Auffälligkeiten und unplau
 **FÜR ALLE WEITEREN ANALYSEN IST AUSSCHLIESSLICH DER BEREINIGTE DATENSATZ ZU VERWENDEN!!!**
 
 ```{r}
+#Remove all negative Prices and "Free" Room Prices
+filter(dataFrame, AverageDailyRate <= 0)
+cleanDataFrame <- filter(dataFrame, AverageDailyRate > 0)
+
+#Remove all NA's in Householdtypecolumn
+filter(cleanDataFrame, is.na(HouseholdType))
+cleanDataFrame <- filter(cleanDataFrame, !is.na(HouseholdType))
 
 ```
 
@@ -638,7 +511,17 @@ Erstelle eine graphische Analyse, welche die relativen Unterschiede des Auftrete
 Hinweis: Verwende für deine Implementierung die Funktion `facet_wrap(, labeller = ...)`. 
 
 ```{r}
+#Tabelle machen mit Median
+householdtypeBySpecialRequest <- cleanDataFrame %>% group_by(HouseholdType, BookingCancelled) %>%
+                                summarise(medianSpecialRequests = mean(TotalSpecialRequests),
+                                          .groups = "drop")
 
+householdtypeBySpecialRequest <- householdtypeBySpecialRequest %>%
+  mutate(BookingCancelled = case_when(BookingCancelled == "Yes" ~ "Cancelled",
+                              BookingCancelled == "No" ~ "Not Cancelled"))
+householdtypeBySpecialRequest$BookingCancelled <- as.factor(householdtypeBySpecialRequest$BookingCancelled)
+
+ggplot(householdtypeBySpecialRequest, aes(x=HouseholdType, y=medianSpecialRequests))+ geom_bar(stat = "identity") + facet_wrap(vars(BookingCancelled))
 ```
 
 
@@ -649,6 +532,12 @@ Erstelle eine Heatmap, welche das Vorkommen von Art des Aufenthalts und Haushalt
 Hinweis: Verwende für deine Implementierung die Funktion `geom_tile()` und eine Farbskala, welche grosse Häufigkeiten dunkler einfärbt als kleine.
 
 ```{r}
+staytypeByHouseholdtype <- cleanDataFrame %>% group_by(StayType, HouseholdType) %>%
+                                summarise(Count = n(),
+                                          .groups = "drop")
+
+ggplot(staytypeByHouseholdtype, aes(x=StayType, y=HouseholdType)) + geom_tile(stat="identity", aes(fill=Count)) + scale_fill_gradient(high="blue", low = "sky blue")
+
 
 ```
 
@@ -660,8 +549,13 @@ Erstelle analog zur Heatmap oben einen Mosaicplot, welcher das Vorkommen von Art
 Hinweis: Verwende für deine Implementierung die Funktion `geom_mosaic()` aus dem Paket `ggmosaic`.
 
 ```{r}
+library(ggmosaic)
+
+ggplot(data = staytypeByHouseholdtype) + geom_mosaic(data= staytypeByHouseholdtype, na.rm = TRUE, divider = mosaic(), aes(weight=Count, x=product(HouseholdType), fill=StayType)) +  theme(axis.text.x=element_text(angle=35))
 
 ```
+Wir haben hier die NA's zur besseren Übersicht weggelassen. Könnte mit na.rm = FALSE korrigiert werden.
+Achsendrehung Quelle: https://rdrr.io/cran/ggmosaic/man/geom_mosaic.html
 
 
 ## Aufgabe (10 Punkte): Analysiere die Definition des Tagesdurchschnittpreises 
@@ -670,9 +564,54 @@ Plausibilisiere visuell, dass die Angaben des Attributs Tagesdurchschnittpreis (
 
 Hinweis: Die Visualisierung ist kein abschliessender Beweis. Beschreibe klar und nachvollziehbar, wieso die von dir gezeigte Grafik ein Indiz dafür ist, dass sich die gelisteten Tagesdurchschnittpreise auf Übernachtungen pro Zimmer beziehen.
 
+Idee: Wenn die Aussage korrekt ist, muss der Schnitt der Buchungen von einer Einzelperson der Durchschnitt und die Standardabweichung des Preises ca. doppelt so gross sein, wie von zwei Personen usw. 
+
+
 ```{r}
 
+#Betrachtung Anzahl Buchungen Tagespreis Pro Zimmer
+ggplot(cleanDataFrame, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
+sdMeanDF <- data.frame(groupSize = 0, SD = sd(cleanDataFrame$AverageDailyRate), Mean = mean(cleanDataFrame$AverageDailyRate))
+
+#Betrachtung Anzahl Buchungen pro 1 Person
+groupSize1 <- filter(cleanDataFrame, GroupSize == 1)
+groupSize1$AverageDailyRate <- groupSize1$AverageDailyRate/1
+ggplot(groupSize1, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
+sdMeanDF <- rbind(sdMeanDF, c(1, sd(groupSize1$AverageDailyRate), mean(groupSize1$AverageDailyRate)))
+
+#Betrachtung Anzahl Buchungen pro 2 Personen
+groupSize2 <- filter(cleanDataFrame, GroupSize == 2)
+groupSize2$AverageDailyRate <- groupSize2$AverageDailyRate/2
+ggplot(groupSize2, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
+sdMeanDF <- rbind(sdMeanDF, c(2, sd(groupSize2$AverageDailyRate), mean(groupSize2$AverageDailyRate)))
+
+#Betrachtung Anzahl Buchungen pro 3 Personen
+groupSize3 <- filter(cleanDataFrame, GroupSize == 3)
+groupSize3$AverageDailyRate <- groupSize3$AverageDailyRate/3
+ggplot(groupSize3, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
+sdMeanDF <- rbind(sdMeanDF, c(3, sd(groupSize3$AverageDailyRate), mean(groupSize3$AverageDailyRate)))
+
+
+#Betrachtung Anzahl Buchungen pro 4 Personen
+groupSize4 <- filter(cleanDataFrame, GroupSize == 4)
+groupSize4$AverageDailyRate <- groupSize4$AverageDailyRate/4
+ggplot(groupSize4, aes(x=AverageDailyRate))+geom_histogram(binwidth = 5)
+sdMeanDF <- rbind(sdMeanDF, c(4, sd(groupSize4$AverageDailyRate), mean(groupSize4$AverageDailyRate)))
+
+
+sdMeanDF
+
+dataFrameGroupSizeFact <- filter(cleanDataFrame, GroupSize < 6)
+dataFrameGroupSizeFact$GroupSize <- as.factor(dataFrameGroupSizeFact$GroupSize)
+
+ggplot(dataFrameGroupSizeFact, aes(x=AverageDailyRate, color=GroupSize, fill=GroupSize))+geom_density(alpha = 0.5)
+
 ```
+
+Auswertung:
+?
+
+
 
 
 ## Aufgabe (10 Punkte): Plausibilisiere Interpretation des Tagesdurchschnittpreises
@@ -684,6 +623,63 @@ Gib für diese drei Fälle folgende Attribute aus: "GroupSize.x", "GroupSize.y",
 Hinweis: Exploriere Beispiele von Hand und mache dann ein Refactoring deines Codes, d.h. verwende für deine Implementierung eine eigene Funktion mit `{{}}`, so dass eine wählbare Menge zufälliger Beispiele selektiert werden kann.
 
 ```{r}
+searchSamples <- function(sampleCount){
+  df <- data.frame()
+  sampleCount2 <- sampleCount
+  while( sampleCount2 > 0){
+    sample1 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+    sample2 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+    count <- 0
+    while(sample1$AverageDailyRate == sample2$AverageDailyRate | sample1$GroupSize == sample2$GroupSize | sample1$ArrivalDate != sample2$ArrivalDate | sample1$Meal != sample2$Meal | sample1$RequiredCarParkingSpaces != sample2$RequiredCarParkingSpaces | sample1$ArrivalDateYear != sample2$ArrivalDateYear | sample1$ReservedRoomType != sample2$ReservedRoomType){
+      sample1 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+      sample2 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+      count <- count + 1
+    }
+    
+    print(count)
+    sample1$GroupSize
+    sample2$GroupSize
+    sample1$AverageDailyRate
+    sample2$AverageDailyRate
+    sample1 <- rbind(sample1,sample2)
+    df <- rbind(df, sample1)
+    sampleCount2 <- sampleCount2 -1
+  }
+  
+  return(df)
+}
+```
+
+
+```{r}
+#Exploration von Hand
+
+#1.Bsp Gleicher Monat, Gleiches Essen, Gleicher Parkplatz
+set.seed(Sys.time())
+sample1 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+sample2 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+count <- 0
+while(sample1$AverageDailyRate == sample2$AverageDailyRate | sample1$GroupSize == sample2$GroupSize | sample1$ArrivalDate != sample2$ArrivalDate | sample1$Meal != sample2$Meal | sample1$RequiredCarParkingSpaces != sample2$RequiredCarParkingSpaces | sample1$ArrivalDateYear != sample2$ArrivalDateYear | sample1$ReservedRoomType != sample2$ReservedRoomType){
+sample1 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+sample2 <- cleanDataFrame[sample(nrow(cleanDataFrame), 1),]
+count <- count + 1
+}
+
+count
+sample1 <- rbind(sample1,sample2)
+
+
+
+
+
+
+
+#-------
+#Mit Funktion
+#Kann lange Laufzeiten hervorrufen :)
+search10 <- searchSamples(10)
+search10
+
 
 ```
 
@@ -695,6 +691,12 @@ Reproduziere die folgende Grafik ("Figure 1: AverageDailyRate_2016_RoomA") für 
 ![AverageDailyRate_2016_RoomA](./AverageDailyRate_2016_RoomA.png)
 
 ```{r}
+roomsTypeAIn2016 <- filter(cleanDataFrame, ArrivalDateYear == 2016 & AssignedRoomType == "A")
+
+
+
+ggplot(roomsTypeAIn2016, aes(x=AverageDailyRate, fill=ArrivalDateMonth))+geom_histogram(binwidth = 9) +  xlab("Average Daily Rate [EURO]") + ylab("Bookings") + facet_wrap(vars(ArrivalDateMonth), ncol=3) + theme(legend.position="none") + expand_limits(x = c(0,300), y=c(0,300)) + ggtitle("Distribution of Average Daily Rate per month for 2016", subtitle = "(Bookings of Assigned Room Type A only)")
+
 
 ```
 
@@ -704,7 +706,12 @@ Reproduziere die folgende Grafik ("Figure 1: AverageDailyRate_2016_RoomA") für 
 Verbessere die vorangehende Grafik so, dass die Reihenfolge der Monate chronologisch geordnet ist.
 
 ```{r}
+roomsTypeAIn2016Ordered <- roomsTypeAIn2016
 
+roomsTypeAIn2016Ordered$ArrivalDateMonth <- factor(roomsTypeAIn2016Ordered$ArrivalDateMonth, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"))
+
+
+ggplot(roomsTypeAIn2016Ordered, aes(x=AverageDailyRate, fill=ArrivalDateMonth)) + geom_histogram(binwidth = 9) + xlab("Average Daily Rate [EURO]") + ylab("Bookings") + facet_wrap(vars(ArrivalDateMonth), ncol=3) + theme(legend.position="none") + expand_limits(x = c(0,300), y=c(0,300)) + ggtitle("Distribution of Average Daily Rate per month for 2016", subtitle = "(Bookings of Assigned Room Type A only)")
 ```
 
 
@@ -717,6 +724,13 @@ Reproduziere die folgende Grafik ("Figure 2: AverageDailyRate_RoomsACDEFG.png") 
 
 ```{r}
 
+roomsPerMonth <- filter(cleanDataFrame, grepl(paste(c("A", "C", "D", "E", "F", "G"), collapse="|"), AssignedRoomType))
+
+ggplot(roomsPerMonth, aes(x=AverageDailyRate, fill=AssignedRoomType)) + geom_histogram(binwidth = 18.95) + xlab("Average Daily Rate [EURO]") + ylab("Bookings") + facet_wrap(vars(AssignedRoomType), ncol=2, scales="free_y") + theme(legend.position="none") + ggtitle("Distribution of Average Daily Rate per month")
+
+
+
+
 ```
 
 
@@ -725,7 +739,7 @@ Reproduziere die folgende Grafik ("Figure 2: AverageDailyRate_RoomsACDEFG.png") 
 Erzeuge für die oben dargestellten Daten nun Boxplots zum Vergleich von Tagesdurchschnittpreisen ("AverageDailyRate") nach Zimmertyp ("AssignedRoomType") und visualisiere die Gruppengrösse mit Hilfe der Fläche der Box.
 
 ```{r}
-
+ggplot(roomsPerMonth, aes(x=AssignedRoomType, y=AverageDailyRate, fill=AssignedRoomType)) + geom_boxplot(varwidth = TRUE) + ylab("Average Daily Rate [EURO]") + xlab("Room Types") +  theme(legend.position="none")
 ```
 
 
@@ -736,7 +750,7 @@ Berechne die Korrelation nach Bravais-Pearson für die Attribute Preis (Attribut
 Hinweis: Verwende für deine Implementierung die Funktion `geom_jitter()` mit sinnvoller Wahl der Parameter `alpha` und `shape`.
 
 ```{r}
-
+ggplot(cleanDataFrame, aes(x=Price, y = TotalNights))+geom_jitter(aes(alpha=0.1))+ ggtitle("Distribution of payed Price per Night", subtitle = str_c("Berechnete Korrelation: ", as.character(round(x=cor(cleanDataFrame$Price, cleanDataFrame$TotalNights), digits = 3))))
 ```
 
 
@@ -748,6 +762,10 @@ Hinweis: Verwende für deine Implementierung die Definition des Boxplots: Ausrei
 
 ```{r}
 
+withoutOutliers <- filter(cleanDataFrame, TotalNights < (quantile(cleanDataFrame$TotalNights, probs = 0.75)*1.5) & Price < (quantile(cleanDataFrame$Price, probs = 0.75)*1.5))
+
+
+ggplot(withoutOutliers, aes(x=Price, y = TotalNights))+geom_jitter(aes(alpha=0.1))+ ggtitle("Distribution of payed Price per Night", subtitle = str_c("Anzahl nicht angezeigte Werte: ", as.character(nrow(cleanDataFrame) - nrow(withoutOutliers))))
 ```
 
 
@@ -758,6 +776,16 @@ Visualisiere die Anzahl der Hotelbuchungen nach Ankunftsdatum im Zeitverlauf, wo
 Hinweis: Verwende für deine Implementierung `tidyverse` und `lubridate`.
 
 ```{r}
+timescaleDF <- filter(cleanDataFrame, BookingCancelled == "No" & ArrivalDate >= ymd("20160601") & ArrivalDate <= (ymd("20160601")+180))
+
+
+
+newDF <- timescaleDF %>% group_by(ArrivalDate) %>%
+          summarise(CountPerDay = n(),
+            .groups = "drop")
+          
+
+ggplot(newDF, aes(x=ArrivalDate, y=CountPerDay))+geom_line()+geom_smooth()
 
 ```
 
@@ -768,6 +796,22 @@ Identifiziere die fünf Tage mit den meisten Zimmer-Buchungen gemessen am Datum 
 
 ```{r}
 
+filteredDF <- filter(cleanDataFrame, BookingCancelled == "No")
+newDF <- filteredDF %>% group_by(ArrivalDate) %>%
+          summarise(CountPerDay = n(),
+            .groups = "drop")
+
+maxAnkunftDate <- newDF[order(newDF$CountPerDay, decreasing = TRUE),]
+maxAnkunftDate <- maxAnkunftDate[1:5,]
+
+dayWithMaxArrivals <- filter(filteredDF, filteredDF$ArrivalDate %in% maxAnkunftDate$ArrivalDate)
+
+groupSizePerDay <- dayWithMaxArrivals %>% group_by(ArrivalDate) %>%
+          summarise(anzahlPersonen = sum(GroupSize),
+            .groups = "drop")
+
+
+print(groupSizePerDay)
 ```
 
 
@@ -779,6 +823,22 @@ Bestimme und markiere dann visuell die Kalenderwoche mit dem höchsten Tagesdurc
 
 ```{r}
 
+library(ggExtra)
+
+ZweiTausendSechZehn <- dataFrame %>%
+  mutate(ArrivalDate = as.Date(ArrivalDate, format = "%d/%m/%y")) %>%
+  filter(ArrivalDate >= "2016-01-01" & ArrivalDate <= "2016-12-31")
+ZweiTausendSechZehn <- dataFrame %>% group_by(ArrivalDateWeekNumber) 
+ZweiTausendSechZehn <- mutate(ZweiTausendSechZehn) %>% summarise(
+  AverageWeeklyRate = mean(AverageDailyRate))
+ZweiTausendSechZehn <- ZweiTausendSechZehn %>% mutate(across(where(is.numeric), round, 2))
+
+#Histogram
+histogram <- ggplot(ZweiTausendSechZehn, aes(x=ArrivalDateWeekNumber)) + geom_point(aes(y=ZweiTausendSechZehn$AverageWeeklyRate), alpha = 0) + geom_histogram(aes(y=stat(ZweiTausendSechZehn$AverageWeeklyRate)), binwidth = 1) +geom_vline(xintercept=33, color="red")
+
+ggMarginal(histogram, type = "boxplot", margins = "y")
+
+
 ```
 
 
@@ -788,6 +848,53 @@ Bestimme und markiere dann visuell die Kalenderwoche mit dem höchsten Tagesdurc
 
 Untersuche weitere, noch nicht beleuchtete Zusammenhänge in den Daten und dokumentiere (a) deine Hypothese, (b) die gefundenen Zusammenhängen präzise in Worten.
 
+
+LeadTime in Korrelation zu BookingCancelled
+--------------------
+Hypothese:
+Höhere Leadtime führt zu einer höheren Wahrscheinlichkeit dass die Buchung gecanceld wird.
+```{r}
+cor(as.integer(dataFrameOld$LeadTime), as.integer(dataFrameOld$BookingCancelled))
+
+
+leadtimeProCancelation <- cleanDataFrame %>% group_by(LeadTime, BookingCancelled) %>%
+          summarise(Anzahl = n(),
+            .groups = "drop")
+
+leadtimeProCancelation <- filter(leadtimeProCancelation, leadtimeProCancelation$Anzahl<500 & leadtimeProCancelation$LeadTime<425)
+
+ggplot(leadtimeProCancelation, aes(x=LeadTime, y=Anzahl, color = BookingCancelled))+geom_line()
+```
+
+
+Gefunden:
+Unsere Hypothese lässt sich nicht Bestätigen. Durch die Berechnung der Korrelation mit der Bravais-Pearson-Formel ergab es eine schwache Korrelation. Jedoch ist auf der Grafik zu erahnen das sich die beiden Kurven immer mehr annähern. Das bedeutet, das die prozentuale Chance steigt, das eine Buchung storniert wird, je grösser LeadTime ist.
+
+
+Trends Forecasting
+----------------
+Hypothese:
+Die Preise steigen wegen der Inflation über die Jahre um ca. 2%.
+
 ```{r}
 
+dailyMeanPriceAll <- cleanDataFrame %>% group_by(ArrivalDate) %>%
+          summarise(AverageDailyMean = mean(AverageDailyRate),
+            .groups = "drop")
+
+
+tsdata <- ts(dailyMeanPriceAll$AverageDailyMean, frequency = 365)
+
+
+ddata <- decompose(tsdata, "multiplicative")
+plot(ddata)
+
+plot(ddata$trend)
+
 ```
+
+
+
+
+
+
